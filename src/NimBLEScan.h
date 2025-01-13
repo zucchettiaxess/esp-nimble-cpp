@@ -78,6 +78,7 @@ public:
     NimBLEScanResults   getResults();
     void                setMaxResults(uint8_t maxResults);
     void                erase(const NimBLEAddress &address);
+    SemaphoreHandle_t   SemaphoreMutex();
 
 
 private:
@@ -97,6 +98,7 @@ private:
     uint32_t                            m_duration;
     ble_task_data_t                     *m_pTaskData;
     uint8_t                             m_maxResults;
+    SemaphoreHandle_t                   mutex;
 };
 
 #endif /* CONFIG_BT_ENABLED CONFIG_BT_NIMBLE_ROLE_OBSERVER */

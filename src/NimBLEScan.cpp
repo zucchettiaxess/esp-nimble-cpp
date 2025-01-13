@@ -21,6 +21,7 @@
 
 #include <string>
 #include <climits>
+#include "SemaphoreGuard.h"
 
 static const char* LOG_TAG = "NimBLEScan";
 
@@ -40,6 +41,7 @@ NimBLEScan::NimBLEScan() {
     m_pTaskData                      = nullptr;
     m_duration                       = BLE_HS_FOREVER; // make sure this is non-zero in the event of a host reset
     m_maxResults                     = 0xFF;
+    mutex = xSemaphoreCreateMutex();
 }
 
 
@@ -48,6 +50,7 @@ NimBLEScan::NimBLEScan() {
  */
 NimBLEScan::~NimBLEScan() {
      clearResults();
+     vSemaphoreDelete(mutex);
 }
 
 /**
@@ -59,12 +62,15 @@ NimBLEScan::~NimBLEScan() {
     (void)arg;
     NimBLEScan* pScan = NimBLEDevice::getScan();
 
+    SemaphoreGuard automutex(pScan->SemaphoreMutex());
+
     switch(event->type) {
 
         case BLE_GAP_EVENT_EXT_DISC:
         case BLE_GAP_EVENT_DISC: {
             if(pScan->m_ignoreResults) {
                 NIMBLE_LOGI(LOG_TAG, "Scan op in progress - ignoring results");
+                
                 return 0;
             }
 #if CONFIG_BT_NIMBLE_EXT_ADV
@@ -81,6 +87,7 @@ NimBLEScan::~NimBLEScan() {
             // Examine our list of ignored addresses and stop processing if we don't want to see it or are already connected
             if(NimBLEDevice::isIgnored(advertisedAddress)) {
                 NIMBLE_LOGI(LOG_TAG, "Ignoring device: address: %s", advertisedAddress.toString().c_str());
+                
                 return 0;
             }
 
@@ -107,6 +114,7 @@ NimBLEScan::~NimBLEScan() {
                 // We still need to store each device when maxResults is 0 to be able to append the scan results
                 if (pScan->m_maxResults > 0 && pScan->m_maxResults < 0xFF &&
                    (pScan->m_scanResults.m_advertisedDevicesVector.size() >= pScan->m_maxResults)) {
+                    
                     return 0;
                 }
 
@@ -125,6 +133,7 @@ NimBLEScan::~NimBLEScan() {
                 NIMBLE_LOGI(LOG_TAG, "Updated advertiser: %s", advertisedAddress.toString().c_str());
             } else {
                 // Scan response from unknown device
+                
                 return 0;
             }
 
@@ -135,6 +144,7 @@ NimBLEScan::~NimBLEScan() {
 
             if (pScan->m_pAdvertisedDeviceCallbacks) {
                 if (pScan->m_scan_params.filter_duplicates && advertisedDevice->m_callbackSent) {
+                    
                     return 0;
                 }
 
@@ -157,7 +167,7 @@ NimBLEScan::~NimBLEScan() {
                     pScan->erase(advertisedAddress);
                 }
             }
-
+            
             return 0;
         }
         case BLE_GAP_EVENT_DISC_COMPLETE: {
@@ -186,13 +196,15 @@ NimBLEScan::~NimBLEScan() {
                 pScan->m_pTaskData->rc = event->disc_complete.reason;
                 xTaskNotifyGive(pScan->m_pTaskData->task);
             }
-
+            
             return 0;
         }
 
         default:
+            
             return 0;
     }
+    
 }  // gapEventHandler
 
 
@@ -512,8 +524,7 @@ void NimBLEScan::clearResults() {
     for(auto &it: m_scanResults.m_advertisedDevicesVector) {
         delete it;
     }
-    m_scanResults.m_advertisedDevicesVector.clear();
-    clearDuplicateCache();
+    std::vector<NimBLEAdvertisedDevice*>().swap(m_scanResults.m_advertisedDevicesVector);
 }
 
 
@@ -580,6 +591,10 @@ NimBLEAdvertisedDevice *NimBLEScanResults::getDevice(const NimBLEAddress &addres
     }
 
     return nullptr;
+}
+
+SemaphoreHandle_t NimBLEScan::SemaphoreMutex(){
+    return mutex;
 }
 
 #endif /* CONFIG_BT_ENABLED && CONFIG_BT_NIMBLE_ROLE_OBSERVER */

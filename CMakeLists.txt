@@ -50,6 +50,7 @@ idf_component_register(
     "src/NimBLEService.cpp"
     "src/NimBLEUtils.cpp"
     "src/NimBLEUUID.cpp"
+    "src/SemaphoreGuard.cpp"
   REQUIRES
     bt
     nvs_flash
