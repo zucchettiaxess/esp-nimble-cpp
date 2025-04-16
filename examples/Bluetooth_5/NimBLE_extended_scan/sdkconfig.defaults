@@ -10,7 +10,4 @@ CONFIG_BTDM_CTRL_MODE_BR_EDR_ONLY=n
 CONFIG_BTDM_CTRL_MODE_BTDM=n
 CONFIG_BT_BLUEDROID_ENABLED=n
 CONFIG_BT_NIMBLE_ENABLED=y
-<<<<<<< HEAD:examples/basic/BLE_scan/sdkconfig.defaults
-=======
 CONFIG_BT_NIMBLE_EXT_ADV=y
->>>>>>> upstream/release/2.2:examples/Bluetooth_5/NimBLE_extended_scan/sdkconfig.defaults
