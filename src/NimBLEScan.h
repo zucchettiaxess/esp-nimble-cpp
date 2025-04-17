@@ -82,6 +82,7 @@ class NimBLEScan {
     void              setMaxResults(uint8_t maxResults);
     void              erase(const NimBLEAddress& address);
     void              erase(const NimBLEAdvertisedDevice* device);
+    SemaphoreHandle_t   SemaphoreMutex();
 
 # if CONFIG_BT_NIMBLE_EXT_ADV
     enum Phy { SCAN_1M = 0x01, SCAN_CODED = 0x02, SCAN_ALL = 0x03 };
@@ -102,6 +103,7 @@ class NimBLEScan {
     NimBLEScanResults    m_scanResults;
     NimBLETaskData*      m_pTaskData;
     uint8_t              m_maxResults;
+    SemaphoreHandle_t                   mutex;
 
 # if CONFIG_BT_NIMBLE_EXT_ADV
     uint8_t  m_phy{SCAN_ALL};

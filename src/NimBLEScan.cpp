@@ -25,8 +25,6 @@
 #include <string>
 #include <climits>
 #include "SemaphoreGuard.h"
-# include <string>
-# include <climits>
 
 static const char*         LOG_TAG = "NimBLEScan";
 static NimBLEScanCallbacks defaultScanCallbacks;
@@ -39,13 +37,15 @@ NimBLEScan::NimBLEScan()
       // default interval + window, no whitelist scan filter,not limited scan, no scan response, filter_duplicates
       m_scanParams{0, 0, BLE_HCI_SCAN_FILT_NO_WL, 0, 1, 1},
       m_pTaskData{nullptr},
-      m_maxResults{0xFF} {}
+      m_maxResults{0xFF},
+      mutex{xSemaphoreCreateMutex()} {}
 
 /**
  * @brief Scan destructor, release any allocated resources.
  */
 NimBLEScan::~NimBLEScan() {
     clearResults();
+    vSemaphoreDelete(mutex);
 }
 
 /**
@@ -56,6 +56,8 @@ NimBLEScan::~NimBLEScan() {
 int NimBLEScan::handleGapEvent(ble_gap_event* event, void* arg) {
     (void)arg;
     NimBLEScan* pScan = NimBLEDevice::getScan();
+
+    SemaphoreGuard automutex(pScan->SemaphoreMutex());
 
     switch (event->type) {
         case BLE_GAP_EVENT_EXT_DISC:
@@ -556,6 +558,10 @@ void NimBLEScanCallbacks::onResult(const NimBLEAdvertisedDevice* pAdvertisedDevi
 
 void NimBLEScanCallbacks::onScanEnd(const NimBLEScanResults& results, int reason) {
     NIMBLE_LOGD(CB_TAG, "Scan ended; reason %d, num results: %d", reason, results.getCount());
+}
+
+SemaphoreHandle_t NimBLEScan::SemaphoreMutex(){
+    return mutex;
 }
 
 #endif /* CONFIG_BT_ENABLED && CONFIG_BT_NIMBLE_ROLE_OBSERVER */

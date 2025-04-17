@@ -1,24 +1,29 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 ## [2.2.1] 2025-02-28
 
 ## Fixed
+
 - Added back `NimBLEClient::connect` overload with `NimBLEAdvertisedDevice` parameter to resolve connection error due to NULL address.
 - Crash caused by returning invalid vector entry when retrieving remote descriptors.
 
 ## [2.2.0] 2025-02-24
 
 ## Fixed
+
 - Crash when calling `NimBLEClient::DiscoverAttributes`.
 
 ## Added
+
 - Conditional macros for logging.
 - `NimBLEDeviceCallbacks` class with a callback for handling bond storage.
 
 ## [2.1.1] 2025-01-26
 
 ## Fixed
+
 - remote descriptor discovery error when no descriptors exist.
 - scan filter settings not enabled for esp32s3/c3.
 - remote descriptor discovery returning more than the desired descriptor.
@@ -26,22 +31,26 @@ All notable changes to this project will be documented in this file.
 ## [2.1.0] 2025-01-12
 
 ## Fixed
+
 - Crash when retrieving descriptors if more than one exists.
 - Incorrect TX power value being advertised.
 - New user guide code for 2.x
 - Potential race condition if `NimBLEScan::clearResults1 is called from multiple tasks.
 
 ## Changed
+
 - If privacy is not enabled identity keys will not be shared.
 - `NimBLEDevice::setPower` and `NimBLEDevice::getPower` now take an additional parameter `NimBLETxPowerType` to set/get the power level for different operations.
 
 ## Added
+
 - Config option `CONFIG_NIMBLE_CPP_ADDR_FMT_EXCLUDE_DELIMITER`, if defined will remove the ":" delimiter from the BLE address string.
 - Config option `CONFIG_NIMBLE_CPP_ADDR_FMT_UPPERCASE` if defined will make the BLE address strings uppercase.
 
 ## [2.0.3] 2025-01-05
 
 ## Fixed
+
 - Unused variable warning when log level is below info.
 - Build error missing definition of CONFIG_NIMBLE_CPP_FREERTOS_TASK_BLOCK_BIT in platformio.
 - Race condition in `NimBLEScan` that can cause a crash due to heap corruption if `NimBLEScan::stop` is called from the `onResult` callback.
@@ -50,9 +59,11 @@ All notable changes to this project will be documented in this file.
 - Too short of a timeout being requested in NimBLE_Server example leading to frequent disconnects.
 
 ## Changed
+
 - `NimBLEHIDDevice` now allows for the same report ID in multiple input/output/feature reports.
 
 ## Added
+
 - Config for custom log colors pre level.
 - Error logs in the case that NIMBLE_CPP_DEBUG_ASSERT is not defined.
 - Error logs when setting advertisement data fails.
@@ -61,24 +72,29 @@ All notable changes to this project will be documented in this file.
 ## [2.0.2] 2024-12-21
 
 ## Fixed
+
 - Compile error when only advertising role is enabled.
 - Possible crash if bonded client reconnects.
 
 ## Changed
+
 - `NimBLEHIDDevice` can now create more than one in/out/feature report map.
 
 ## [2.0.1] 2024-12-16
 
 ## Fixed
+
 - `NimBLEHIDDevice::getOutputReport` will now return the correct characteristic.
 - Compile error when central is disabled, class `NimBLEServer` has no member named `m_pClient`.
 
 ## Changed
+
 - Added missing includes for `NimBLEConnInfo` and `NimBLEUtils` to `NimBLEDevice.h`.
 
 ## [2.0.0] 2024-12-14
 
 ## **Breaking changes**
+
 - All connection oriented callbacks now receive a reference to `NimBLEConnInfo`, the `ble_gap_conn_desc` has also been replace with `NimBLEConnInfo` in the functions that received it.
 - All functions that take a time input parameter now expect the value to be in milliseconds instead of seconds.
 - Removed Eddystone URL as it has been shutdown by google since 2021.
@@ -160,6 +176,7 @@ All notable changes to this project will be documented in this file.
 - `NimBLEHIDDevice::batteryService`renamed to `NimBLEHIDDevice::getBatteryService`.
 
 ## Fixed
+
 - `NimBLEDevice::getPower` and `NimBLEDevice::getPowerLevel` bug worked around for the esp32s3 and esp32c3.
 - `NimBLEDevice::setPower` and `NimBLEDevice::getPower` now support the full power range for all esp devices.
 - `NimBLEDevice::setOwnAddrType` will now correctly apply the provided address type for all devices.
@@ -169,13 +186,14 @@ All notable changes to this project will be documented in this file.
 - `NimBLEService::getHandle` will now fetch the handle from the stack if not valid to avoid returning an invalid value.
 - `std::vector` input to set/write values template.
 - `NimBLEHIDDevice::pnp` will now set the data correctly.
-- Check for Arduino component 
+- Check for Arduino component
 - Fixed building with esp-idf version 5.x.
 - Fixed pairing failing when the process was started by the peer first.
 - Fixed building with esp-idf and Arduino component.
 - Workaround for esp32s3 and esp32c3 not returning the correct txPower with some IDF versions.
 
 ### Changed
+
 - `NimBLEClient::secureConnection` now takes an additional parameter `bool async`, if true, will send the secure command and return immediately with a true value for successfully sending the command, else false. This allows for asynchronously securing a connection.
 - Deleting the client instance from the `onDisconnect` callback is now supported.
 - `NimBLEClient::connect` will no longer cancel already in progress connections.
@@ -225,7 +243,8 @@ the functions and tracking in the host stack.
 - cleaned up code, removed assert/abort calls, replaced with a configurable option to enable debug asserts.
 
 ### Added
-- (esp32 specific) `NimBLEDevice::setPowerLevel` and `NimBLEDevice::getPowerLevel` which take and return the related `esp_power_level* ` types.
+
+- (esp32 specific) `NimBLEDevice::setPowerLevel` and `NimBLEDevice::getPowerLevel` which take and return the related `esp_power_level*` types.
 - `NimBLEDevice::setDefaultPhy` which will set the default preferred PHY for all connections.
 - `NimBLEDevice::getConnectedClients`, which returns a vector of pointers to the currently connected client instances.
 - `NimBLEDevice::setOwnAddr` function added, which takes a `uint8_t*` or `NimBLEAddress&` and will set the mac address of the device, returns `bool` true= success.
@@ -241,8 +260,8 @@ the functions and tracking in the host stack.
 - `NimBLEClient::setConfig` and `NimBLEClient::getConfig` which takes or returns a `NimBLEClient::Config` object respectively.
 - `NimBLEClient::cancelConnect()` to cancel an in-progress connection, returns `bool`, true = success.
 - Non-blocking `NimBLEClient::connect` option added via 2 new `bool` parameters added to the function:
-- * `asyncConnect`; if true, will send the connect command and return immediately.
-- * `exchangeMTU`; if true will send the exchange MTU command upon connection.
+- - `asyncConnect`; if true, will send the connect command and return immediately.
+- - `exchangeMTU`; if true will send the exchange MTU command upon connection.
 - `NimBLEClientCallbacks::onConnectFail` callback that is called when the connection attempt fail while connecting asynchronously.
 - `NimBLEClientCallbacks::onMTUChange` callback which will be called when the MTU exchange completes and takes a `NimBLEClient*` and `uint16_t MTU` parameter.
 - `NimBLEClientCallbacks::onPhyUpdate` and -`NimBLEServerCallbacks::onPhyUpdate` Which are called when the PHY update is complete.
@@ -272,7 +291,7 @@ the functions and tracking in the host stack.
 - New overloads for `NimBLEAdvertising::removeServiceUUID` and `NimBLEAdvertisementData::removeServiceUUID` to accept a `const char*`
 - `NimBLEAdvertising::clearData`, which will clear the advertisement and scan response data.
 - `NimBLEAdvertising::setManufacturerData` Overload that takes a `const uint8_t*` and , size_t` parameter.
-- `NimBLEAdvertising::setServiceData` Overload that takes `const NimBLEUUID& uuid`, ` const uint8_t* data`, ` size_t length` as parameters.
+- `NimBLEAdvertising::setServiceData` Overload that takes `const NimBLEUUID& uuid`, `const uint8_t* data`, `size_t length` as parameters.
 - `NimBLEAdvertising::setServiceData` Overload that takes `const NimBLEUUID& uuid`, `const std::vector<uint8_t>&` as parameters.
 - `NimBLEAdvertising::setDiscoverableMode` to allow applications to control the discoverability of the advertiser.
 - `NimBLEAdvertising::setAdvertisingCompleteCallback` sets the callback to call when advertising ends.
@@ -300,26 +319,31 @@ the functions and tracking in the host stack.
 ## [1.4.1] - 2022-10-30
 
 ### Fixed
- - NimBLEDevice::getPower incorrect value when power level is -3db.
- - Failed pairing when already in progress.
+
+- NimBLEDevice::getPower incorrect value when power level is -3db.
+- Failed pairing when already in progress.
 
 ### Changed
- - Revert previous change that forced writing with response when subscribing in favor of allowing the application to decide.
+
+- Revert previous change that forced writing with response when subscribing in favor of allowing the application to decide.
 
 ### Added
- - Added NimBLEHIDDevice::batteryLevel.
- - Added NimBLEDevice::setDeviceName allowing for changing the device name while the BLE stack is active.
- - CI Builds
+
+- Added NimBLEHIDDevice::batteryLevel.
+- Added NimBLEDevice::setDeviceName allowing for changing the device name while the BLE stack is active.
+- CI Builds
 
 ## [1.4.0] - 2022-07-31
 
 ### Fixed
+
 - Fixed missing data from long notification values.
 - Fixed NimbleCharacteristicCallbacks::onRead not being called when a non-long read command is received.
 - Prevent a potential crash when retrieving characteristics from a service if the result was successful but no characteristics found.
 - logs/typos.
 
 ### Changed
+
 - AD flags are no longer set in the advertisements of non-connectable beacons, freeing up 3 bytes of advertisement room.
 - Save resources when retrieving descriptors if the characteristic handle is the same as the end handle (no descriptors).
 - Subscribing to characteristic notifications/indications will now always use write with response, as per BLE specifications.
@@ -327,6 +351,7 @@ the functions and tracking in the host stack.
 - Scan result callbacks are no longer called when the scan response data is updated in order to reduce duplicates.
 
 ### Added
+
 - Preliminary support for non-esp devices, NRF51 and NRF52 devices supported with [n-able arduino core](https://github.com/h2zero/n-able-Arduino)
 - Alias added for  `NimBLEServerCallbacks::onMTUChange` to `onMtuChanged` in order to support porting code from original library.
 - `NimBLEAttValue` Class added to reduce and control RAM footprint of characteristic/descriptor values and support conversions from Arduino Strings and many other data types.
@@ -335,9 +360,11 @@ the functions and tracking in the host stack.
 ## [1.3.3] - 2022-02-15
 
 ### Changed
+
 - If attribute retrieval fails with a "not found" try again with the 16 bit version if a 128 bit base uuid is used.
 
 ### Fixed
+
 - Memory leak when deleting client instance.
 - IDf version check for data length extension.
 - Memory leak when server services changed.
@@ -346,6 +373,7 @@ the functions and tracking in the host stack.
 ## [1.3.2] - 2022-01-15
 
 ### Fixed
+
 - Initialize advertising complete callback in NimBLEAdvertising constructor.
 - Clear client disconnect timer in constructor before initializing.
 - Fix missing data when reading large values.
@@ -353,6 +381,7 @@ the functions and tracking in the host stack.
 - Workaround fix added for cases when the task notification value is not cleared, causing various functions that should block not to block.
 
 ### Added
+
 - `NimBLEClient::getLastError` : Gets the error code of the last function call that produces a return code from the stack.
 - `NimBLECharacteristic::notify` : Overload method to send notifications/indications with custom values.
 - Added conditional checks for ESP32 specific functions/values to support use of the library on non-esp32 devices.
@@ -361,17 +390,20 @@ the functions and tracking in the host stack.
 - Config option to set logging level for esp-nimble-cpp
 
 ### Changed
+
 - Critical section calls now use the NimBLE API instead of FreeRTOS directly. This removes the need for a `portMUX_TYPE` variable in the class definitions.
 - Removed unnecessary variables in `NimBLEService` and changed the constructor no no longer accept `numHandles` and `inst_id` parameters.
 
 ## [1.3.1] - 2021-08-04
 
 ### Fixed
+
 - Corrected a compiler/linker error when an application or a library uses bluetooth classic due to the redefinition of `btInUse`.
 
 ## [1.3.0] - 2021-08-02
 
 ### Added
+
 - `NimBLECharacteristic::removeDescriptor`: Dynamically remove a descriptor from a characteristic. Takes effect after all connections are closed and sends a service changed indication.
 - `NimBLEService::removeCharacteristic`: Dynamically remove a characteristic from a service. Takes effect after all connections are closed and sends a service changed indication
 - `NimBLEServerCallbacks::onMTUChange`: This is callback is called when the MTU is updated after connection with a client.
@@ -395,12 +427,14 @@ the functions and tracking in the host stack.
 - `NimBLEScan::clearDuplicateCache`: This can be used to reset the cache of advertised devices so they will be immediately discovered again.
 
 ### Changed
+
 - FreeRTOS files have been removed as they are not used by the library.
 - Services, characteristics and descriptors can now be created statically and added after.
 - Excess logging and some asserts removed.
 - Use ESP_LOGx macros to enable using local log level filtering.
 
 ### Fixed
+
 - `NimBLECharacteristicCallbacks::onSubscribe` Is now called after the connection is added to the vector.
 - Corrected bonding failure when reinitializing the BLE stack.
 - Writing to a characteristic with a std::string value now correctly writes values with null characters.
@@ -413,6 +447,7 @@ the functions and tracking in the host stack.
 ## [1.2.0] - 2021-02-08
 
 ### Added
+
 - `NimBLECharacteristic::getDescriptorByHandle`: Return the BLE Descriptor for the given handle.
 
 - `NimBLEDescriptor::getStringValue`: Get the value of this descriptor as a string.
@@ -455,6 +490,7 @@ Overloads to get a vector containing pointers to all the characteristics in a se
   - `haveTargetAddress/getTargetAddressCount/getTargetAddress(index)`: checks if a target address is present / gets a count of the addresses targeted / gets the address of the target at index.
 
 ### Changed
+
 - `nimconfig.h` (Arduino) is now easier to use.
 
 - `NimBLEServer::getServiceByUUID` Now takes an extra parameter of instanceID to support multiple services with the same UUID.
@@ -471,12 +507,13 @@ Overloads to get a vector containing pointers to all the characteristics in a se
 Instead the data will be parsed on-demand when the user application asks for specific data.
 
 ### Fixed
-- `NimBLEHIDDevice` Characteristics now use encryption, this resolves an issue with communicating with devices requiring encryption for HID devices.
 
+- `NimBLEHIDDevice` Characteristics now use encryption, this resolves an issue with communicating with devices requiring encryption for HID devices.
 
 ## [1.1.0] - 2021-01-20
 
 ### Added
+
 - `NimBLEDevice::setOwnAddrType` added to enable the use of random and random-resolvable addresses, by asukiaaa
 
 - New examples for securing and authenticating client/server connections, by mblasee.
@@ -498,6 +535,7 @@ to obtain information about the disconnected client.
 - Conditional checks in `nimconfig.h` for command line defined macros to support platformio config settings.
 
 ### Changed
+
 - `NimBLEAdvertising::start` now returns a bool value to indicate success/failure.
 
 - Some asserts were removed in `NimBLEAdvertising::start` and replaced with better return code handling and logging.
@@ -513,6 +551,7 @@ regardless of the existence of the CCCD and return true unless the descriptor wr
 this allows the starting of a new scan from the callback function.
 
 ### Fixed
+
 - Sometimes `NimBLEClient::connect` would hang on the task block if no event arrived to unblock.
 A time limit has been added to timeout appropriately.
 
@@ -543,7 +582,6 @@ advertised them as 16/32bit but resolved them to 128bits. Both are now checked.
 
 - (Arduino) Ensure controller mode is set to BLE Only.
 
-
 ## [1.0.2] - 2020-09-13
 
 ### Changed
@@ -556,7 +594,6 @@ Any changes to the controller max connection settings in `sdkconfig.h` will now 
 
 - (Arduino) Revert the previous change to fix the advertising start delay. Instead a replacement fix that routes all BLE controller commands from
 a task running on core 0 (same as the controller) has been implemented. This improves response times and reliability for all BLE functions.
-
 
 ## [1.0.1] - 2020-09-02
 
@@ -572,7 +609,6 @@ a task running on core 0 (same as the controller) has been implemented. This imp
 ### Fixed
 
 - Fix advertising start delay when first called.
-
 
 ## [1.0.0] - 2020-08-22
 
