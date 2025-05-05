@@ -5,25 +5,21 @@ All notable changes to this project will be documented in this file.
 ## [2.2.1] 2025-02-28
 
 ## Fixed
-
 - Added back `NimBLEClient::connect` overload with `NimBLEAdvertisedDevice` parameter to resolve connection error due to NULL address.
 - Crash caused by returning invalid vector entry when retrieving remote descriptors.
 
 ## [2.2.0] 2025-02-24
 
 ## Fixed
-
 - Crash when calling `NimBLEClient::DiscoverAttributes`.
 
 ## Added
-
 - Conditional macros for logging.
 - `NimBLEDeviceCallbacks` class with a callback for handling bond storage.
 
 ## [2.1.1] 2025-01-26
 
 ## Fixed
-
 - remote descriptor discovery error when no descriptors exist.
 - scan filter settings not enabled for esp32s3/c3.
 - remote descriptor discovery returning more than the desired descriptor.
@@ -31,19 +27,16 @@ All notable changes to this project will be documented in this file.
 ## [2.1.0] 2025-01-12
 
 ## Fixed
-
 - Crash when retrieving descriptors if more than one exists.
 - Incorrect TX power value being advertised.
 - New user guide code for 2.x
 - Potential race condition if `NimBLEScan::clearResults1 is called from multiple tasks.
 
 ## Changed
-
 - If privacy is not enabled identity keys will not be shared.
 - `NimBLEDevice::setPower` and `NimBLEDevice::getPower` now take an additional parameter `NimBLETxPowerType` to set/get the power level for different operations.
 
 ## Added
-
 - Config option `CONFIG_NIMBLE_CPP_ADDR_FMT_EXCLUDE_DELIMITER`, if defined will remove the ":" delimiter from the BLE address string.
 - Config option `CONFIG_NIMBLE_CPP_ADDR_FMT_UPPERCASE` if defined will make the BLE address strings uppercase.
 

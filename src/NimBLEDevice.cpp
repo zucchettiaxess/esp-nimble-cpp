@@ -65,6 +65,9 @@
 
 # if defined(CONFIG_BT_NIMBLE_ROLE_PERIPHERAL)
 #  include "NimBLEServer.h"
+#  if CONFIG_BT_NIMBLE_L2CAP_COC_MAX_NUM > 0
+#  include "NimBLEL2CAPServer.h"
+#  endif
 # endif
 
 # include "NimBLELog.h"
@@ -76,7 +79,7 @@ extern "C" void ble_store_config_init(void);
 /**
  * Singletons for the NimBLEDevice.
  */
-NimBLEDeviceCallbacks NimBLEDevice::defaultDeviceCallbacks{};
+NimBLEDeviceCallbacks  NimBLEDevice::defaultDeviceCallbacks{};
 NimBLEDeviceCallbacks* NimBLEDevice::m_pDeviceCallbacks = &defaultDeviceCallbacks;
 
 # if defined(CONFIG_BT_NIMBLE_ROLE_OBSERVER)
@@ -85,6 +88,9 @@ NimBLEScan* NimBLEDevice::m_pScan = nullptr;
 
 # if defined(CONFIG_BT_NIMBLE_ROLE_PERIPHERAL)
 NimBLEServer* NimBLEDevice::m_pServer = nullptr;
+#  if CONFIG_BT_NIMBLE_L2CAP_COC_MAX_NUM > 0
+NimBLEL2CAPServer* NimBLEDevice::m_pL2CAPServer = nullptr;
+#  endif
 # endif
 
 # if defined(CONFIG_BT_NIMBLE_ROLE_BROADCASTER)
@@ -96,7 +102,7 @@ NimBLEAdvertising* NimBLEDevice::m_bleAdvertising = nullptr;
 # endif
 
 # if defined(CONFIG_BT_NIMBLE_ROLE_CENTRAL)
-std::array<NimBLEClient*, NIMBLE_MAX_CONNECTIONS> NimBLEDevice::m_pClients{nullptr};
+std::array<NimBLEClient*, NIMBLE_MAX_CONNECTIONS> NimBLEDevice::m_pClients{};
 # endif
 
 bool                       NimBLEDevice::m_initialized{false};
@@ -140,6 +146,27 @@ NimBLEServer* NimBLEDevice::createServer() {
 NimBLEServer* NimBLEDevice::getServer() {
     return m_pServer;
 } // getServer
+
+#  if CONFIG_BT_NIMBLE_L2CAP_COC_MAX_NUM > 0
+/**
+ * @brief Create an instance of a L2CAP server.
+ * @return A pointer to the instance of the L2CAP server.
+ */
+NimBLEL2CAPServer* NimBLEDevice::createL2CAPServer() {
+    if (NimBLEDevice::m_pL2CAPServer == nullptr) {
+        NimBLEDevice::m_pL2CAPServer = new NimBLEL2CAPServer();
+    }
+    return m_pL2CAPServer;
+} // createL2CAPServer
+
+/**
+ * @brief Get the instance of the L2CAP server.
+ * @return A pointer to the L2CAP server instance or nullptr if none have been created.
+ */
+NimBLEL2CAPServer* NimBLEDevice::getL2CAPServer() {
+    return m_pL2CAPServer;
+} // getL2CAPServer
+#  endif
 # endif // #if defined(CONFIG_BT_NIMBLE_ROLE_PERIPHERAL)
 
 /* -------------------------------------------------------------------------- */
@@ -476,14 +503,14 @@ bool NimBLEDevice::setPower(int8_t dbm, NimBLETxPowerType type) {
         dbm++; // round up to the next multiple of 3 to be able to target 20dbm
     }
 
-    bool success = false;
-    esp_power_level_t espPwr = static_cast<esp_power_level_t>(dbm / 3 + ESP_PWR_LVL_N0);
+    bool              success = false;
+    esp_power_level_t espPwr  = static_cast<esp_power_level_t>(dbm / 3 + ESP_PWR_LVL_N0);
     if (type == NimBLETxPowerType::All) {
         success  = setPowerLevel(espPwr, ESP_BLE_PWR_TYPE_ADV);
         success &= setPowerLevel(espPwr, ESP_BLE_PWR_TYPE_SCAN);
         success &= setPowerLevel(espPwr, ESP_BLE_PWR_TYPE_DEFAULT);
     } else if (type == NimBLETxPowerType::Advertise) {
-        success = setPowerLevel(espPwr,  ESP_BLE_PWR_TYPE_ADV);
+        success = setPowerLevel(espPwr, ESP_BLE_PWR_TYPE_ADV);
     } else if (type == NimBLETxPowerType::Scan) {
         success = setPowerLevel(espPwr, ESP_BLE_PWR_TYPE_SCAN);
     } else if (type == NimBLETxPowerType::Connection) {
@@ -739,7 +766,6 @@ NimBLEAddress NimBLEDevice::getWhiteListAddress(size_t index) {
 /*                               STACK FUNCTIONS                              */
 /* -------------------------------------------------------------------------- */
 
-# if CONFIG_BT_NIMBLE_EXT_ADV || defined(_DOXYGEN_)
 /**
  * @brief Set the preferred default phy to use for connections.
  * @param [in] txPhyMask TX PHY. Can be mask of following:
@@ -762,7 +788,6 @@ bool NimBLEDevice::setDefaultPhy(uint8_t txPhyMask, uint8_t rxPhyMask) {
 
     return rc == 0;
 }
-# endif
 
 /**
  * @brief Host reset, we pass the message so we don't make calls until re-synced.
@@ -844,7 +869,7 @@ bool NimBLEDevice::init(const std::string& deviceName) {
     if (!m_initialized) {
 # ifdef ESP_PLATFORM
 
-#  ifdef CONFIG_ENABLE_ARDUINO_DEPENDS
+#  if defined(CONFIG_ENABLE_ARDUINO_DEPENDS) && SOC_BT_SUPPORTED
         // make sure the linker includes esp32-hal-bt.c so Arduino init doesn't release BLE memory.
         btStarted();
 #  endif
@@ -965,6 +990,12 @@ bool NimBLEDevice::deinit(bool clearAll) {
             delete NimBLEDevice::m_pServer;
             NimBLEDevice::m_pServer = nullptr;
         }
+#  if CONFIG_BT_NIMBLE_L2CAP_COC_MAX_NUM > 0
+        if (NimBLEDevice::m_pL2CAPServer != nullptr) {
+            delete NimBLEDevice::m_pL2CAPServer;
+            NimBLEDevice::m_pL2CAPServer = nullptr;
+        }
+#  endif
 # endif
 
 # if defined(CONFIG_BT_NIMBLE_ROLE_BROADCASTER)
@@ -1038,18 +1069,16 @@ bool NimBLEDevice::setOwnAddrType(uint8_t type) {
 
     m_ownAddrType = type;
 
+# if MYNEWT_VAL(BLE_HOST_BASED_PRIVACY)
     if (type == BLE_OWN_ADDR_RPA_PUBLIC_DEFAULT || type == BLE_OWN_ADDR_RPA_RANDOM_DEFAULT) {
-# ifdef CONFIG_IDF_TARGET_ESP32
         // esp32 controller does not support RPA so we must use the random static for calls to the stack
         // the host will take care of the random private address generation/setting.
         m_ownAddrType = BLE_OWN_ADDR_RANDOM;
         rc            = ble_hs_pvcy_rpa_config(NIMBLE_HOST_ENABLE_RPA);
-# endif
     } else {
-# ifdef CONFIG_IDF_TARGET_ESP32
         rc = ble_hs_pvcy_rpa_config(NIMBLE_HOST_DISABLE_PRIVACY);
-# endif
     }
+# endif
 
     return rc == 0;
 } // setOwnAddrType

@@ -59,6 +59,9 @@ class NimBLEAdvertising;
 
 # if defined(CONFIG_BT_NIMBLE_ROLE_PERIPHERAL)
 class NimBLEServer;
+#  if CONFIG_BT_NIMBLE_L2CAP_COC_MAX_NUM > 0
+class NimBLEL2CAPServer;
+#  endif
 # endif
 
 # if defined(CONFIG_BT_NIMBLE_ROLE_PERIPHERAL) || defined(CONFIG_BT_NIMBLE_ROLE_CENTRAL)
@@ -95,6 +98,13 @@ class NimBLEDeviceCallbacks;
 # define BLEEddystoneTLM              NimBLEEddystoneTLM
 # define BLEEddystoneURL              NimBLEEddystoneURL
 # define BLEConnInfo                  NimBLEConnInfo
+# define BLEL2CAPServer               NimBLEL2CAPServer
+# define BLEL2CAPService              NimBLEL2CAPService
+# define BLEL2CAPServiceCallbacks     NimBLEL2CAPServiceCallbacks
+# define BLEL2CAPClient               NimBLEL2CAPClient
+# define BLEL2CAPClientCallbacks      NimBLEL2CAPClientCallbacks
+# define BLEL2CAPChannel              NimBLEL2CAPChannel
+# define BLEL2CAPChannelCallbacks     NimBLEL2CAPChannelCallbacks
 
 # ifdef CONFIG_BT_NIMBLE_MAX_CONNECTIONS
 #  define NIMBLE_MAX_CONNECTIONS CONFIG_BT_NIMBLE_MAX_CONNECTIONS
@@ -102,12 +112,7 @@ class NimBLEDeviceCallbacks;
 #  define NIMBLE_MAX_CONNECTIONS CONFIG_NIMBLE_MAX_CONNECTIONS
 # endif
 
-enum class NimBLETxPowerType {
-    All  = 0,
-    Advertise  = 1,
-    Scan = 2,
-    Connection = 3
-};
+enum class NimBLETxPowerType { All = 0, Advertise = 1, Scan = 2, Connection = 3 };
 
 typedef int (*gap_event_handler)(ble_gap_event* event, void* arg);
 
@@ -149,16 +154,13 @@ class NimBLEDevice {
     static void          host_task(void* param);
     static int           getPower(NimBLETxPowerType type = NimBLETxPowerType::All);
     static bool          setPower(int8_t dbm, NimBLETxPowerType type = NimBLETxPowerType::All);
+    static bool          setDefaultPhy(uint8_t txPhyMask, uint8_t rxPhyMask);
 
 # ifdef ESP_PLATFORM
 #  ifndef CONFIG_IDF_TARGET_ESP32P4
     static esp_power_level_t getPowerLevel(esp_ble_power_type_t powerType = ESP_BLE_PWR_TYPE_DEFAULT);
     static bool setPowerLevel(esp_power_level_t powerLevel, esp_ble_power_type_t powerType = ESP_BLE_PWR_TYPE_DEFAULT);
 #  endif
-# endif
-
-# if CONFIG_BT_NIMBLE_EXT_ADV
-    static bool setDefaultPhy(uint8_t txPhyMask, uint8_t rxPhyMask);
 # endif
 
 # if defined(CONFIG_BT_NIMBLE_ROLE_OBSERVER)
@@ -168,6 +170,10 @@ class NimBLEDevice {
 # if defined(CONFIG_BT_NIMBLE_ROLE_PERIPHERAL)
     static NimBLEServer* createServer();
     static NimBLEServer* getServer();
+#  if CONFIG_BT_NIMBLE_L2CAP_COC_MAX_NUM > 0
+    static NimBLEL2CAPServer* createL2CAPServer();
+    static NimBLEL2CAPServer* getL2CAPServer();
+#  endif
 # endif
 
 # if defined(CONFIG_BT_NIMBLE_ROLE_PERIPHERAL) || defined(CONFIG_BT_NIMBLE_ROLE_CENTRAL)
@@ -224,6 +230,9 @@ class NimBLEDevice {
 
 # if defined(CONFIG_BT_NIMBLE_ROLE_PERIPHERAL)
     static NimBLEServer* m_pServer;
+#  if CONFIG_BT_NIMBLE_L2CAP_COC_MAX_NUM > 0
+    static NimBLEL2CAPServer* m_pL2CAPServer;
+#  endif
 # endif
 
 # if defined(CONFIG_BT_NIMBLE_ROLE_BROADCASTER)
@@ -283,6 +292,10 @@ class NimBLEDevice {
 #  include "NimBLEService.h"
 #  include "NimBLECharacteristic.h"
 #  include "NimBLEDescriptor.h"
+#  if CONFIG_BT_NIMBLE_L2CAP_COC_MAX_NUM > 0
+#   include "NimBLEL2CAPServer.h"
+#   include "NimBLEL2CAPChannel.h"
+#  endif
 # endif
 
 # if defined(CONFIG_BT_NIMBLE_ROLE_BROADCASTER)
